@@ -1,6 +1,7 @@
 const express = require("express");
 const Authentication = require("../../../middlewares/authentication/Authentication");
 const MessageModel = require("../../../models/messagesModel/messages.model");
+const CheckDeleteMessage = require("../../../middlewares/checkDeleteMessage/CheckDeleteMessage");
 
 const route = express.Router();
 
@@ -62,7 +63,19 @@ route.post("/", Authentication, async (req, res) => {
       .status(200)
       .json({ msg: "post criado com sucesso!", post: createdPost });
   } catch (error) {
-    res.status(500).json({ msg: "erro ao criar post!" });
+    res.status(500).json({ msg: "erro ao criar mensagem!" });
+  }
+});
+
+route.delete("/:id", Authentication, CheckDeleteMessage, async (req, res) => {
+  try {
+    messageId = req.params.id;
+    const deletedMessage = await MessageModel.findByIdAndDelete(messageId);
+    res
+      .status(200)
+      .json({ msg: "mensagem deletada com sucesso!", post: deletedMessage });
+  } catch (error) {
+    res.status(500).json({ msg: "erro ao deletar mensagem!" });
   }
 });
 
