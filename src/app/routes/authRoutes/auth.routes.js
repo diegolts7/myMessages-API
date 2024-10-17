@@ -6,6 +6,35 @@ const MessageModel = require("../../../models/messagesModel/messages.model");
 
 const router = express.Router();
 
+// rota de pegar um usuario
+
+router.get("/users/:id", Authenticate, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await UserModel.findById(id).select("-password");
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ msg: "erro ao buscar o usuario" });
+  }
+});
+
+// rota para deletar um usuario
+
+router.delete("/users/:id", Authenticate, IsAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deletedUser = await UserModel.findByIdAndDelete(id).select(
+      "-password"
+    );
+    await MessageModel.deleteMany({ ownerId: id });
+    res
+      .status(200)
+      .json({ msg: "usuario deletado com sucesso!", user: deletedUser });
+  } catch (error) {
+    res.status(500).json({ msg: "erro ao deletar usuario!" });
+  }
+});
+
 // rota register
 
 router.post("/register", async (req, res) => {
