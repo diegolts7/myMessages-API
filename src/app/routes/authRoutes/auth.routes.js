@@ -3,12 +3,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../../../models/userModel/user.model");
 const MessageModel = require("../../../models/messagesModel/messages.model");
+const Authentication = require("../../../middlewares/authentication/Authentication");
+const VerifyAdmin = require("../../../middlewares/verifyAdmin/VerifyAdmin");
 
 const router = express.Router();
 
 // rota de pegar um usuario
 
-router.get("/users/:id", Authenticate, async (req, res) => {
+router.get("/users/:id", Authentication, async (req, res) => {
   try {
     const id = req.params.id;
     const user = await UserModel.findById(id).select("-password");
@@ -20,7 +22,7 @@ router.get("/users/:id", Authenticate, async (req, res) => {
 
 // rota para deletar um usuario
 
-router.delete("/users/:id", Authenticate, IsAdmin, async (req, res) => {
+router.delete("/users/:id", Authentication, VerifyAdmin, async (req, res) => {
   try {
     const id = req.params.id;
     const deletedUser = await UserModel.findByIdAndDelete(id).select(
