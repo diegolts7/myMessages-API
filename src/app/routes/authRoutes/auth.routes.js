@@ -2,40 +2,8 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../../../models/userModel/user.model");
-const MessageModel = require("../../../models/messagesModel/messages.model");
-const Authentication = require("../../../middlewares/authentication/Authentication");
-const VerifyAdmin = require("../../../middlewares/verifyAdmin/VerifyAdmin");
 
 const router = express.Router();
-
-// rota de pegar um usuario
-
-router.get("/users/:id", Authentication, async (req, res) => {
-  try {
-    const id = req.params.id;
-    const user = await UserModel.findById(id).select("-password");
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ msg: "erro ao buscar o usuario" });
-  }
-});
-
-// rota para deletar um usuario
-
-router.delete("/users/:id", Authentication, VerifyAdmin, async (req, res) => {
-  try {
-    const id = req.params.id;
-    const deletedUser = await UserModel.findByIdAndDelete(id).select(
-      "-password"
-    );
-    await MessageModel.deleteMany({ ownerId: id });
-    res
-      .status(200)
-      .json({ msg: "usuario deletado com sucesso!", user: deletedUser });
-  } catch (error) {
-    res.status(500).json({ msg: "erro ao deletar usuario!" });
-  }
-});
 
 // rota register
 
