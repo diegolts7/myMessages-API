@@ -1,5 +1,4 @@
 const s3Client = require("../../config/aws/aws-s3");
-const fs = require("fs");
 const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const deleteFromS3 = async (fileName) => {

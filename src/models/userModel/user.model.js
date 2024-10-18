@@ -14,9 +14,21 @@ const userSchema = new mongoose.Schema({
     enum: ["admin", "user"],
     default: "user",
   },
+  profileImg: {
+    nameImg: {
+      type: String,
+
+      default: "",
+    },
+    srcImg: {
+      type: String,
+      default: "",
+    },
+  },
   email: {
     type: String,
     required: true,
+    unique: true,
   },
   password: {
     type: String,
