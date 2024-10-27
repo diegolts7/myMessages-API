@@ -19,3 +19,5 @@ app.use("/recover", recoverPasswordRoutes);
 app.listen(process.env.PORT, () =>
   console.log(`servidor rodando na porta ${process.env.PORT}`)
 );
+
+module.exports = app;
