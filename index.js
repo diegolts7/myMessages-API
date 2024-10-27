@@ -7,3 +7,5 @@ const app = require("./src/app/server");
 app.get("/", (req, res) => {
   res.send("API está funcionando");
 });
+
+module.exports = app;
