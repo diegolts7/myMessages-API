@@ -3,6 +3,8 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const UserModel = require("../../../models/userModel/user.model");
 const SendEmail = require("../../../services/sendEmail/SendEmail");
+const bcrypt = require("bcrypt");
+const AuthTokenPassword = require("../../../middlewares/authTokenPassword/AuthTokenPassword");
 
 // rota de enviar token de recuperar senha ao usuario
 
@@ -85,9 +87,9 @@ router.post("/password/token", async (req, res) => {
         <body>
             <div class="container">
                 <h1>Recuperação de Senha</h1>
-                <p>Olá,</p>
+                <p>Olá, ${token}</p>
                 <p>Recebemos um pedido para redefinir sua senha. Clique no botão abaixo para criar uma nova senha:</p>
-                <a href="${token}" class="button">Redefinir Senha</a>
+                <a href="" class="button">Redefinir Senha</a>
                 <p>Se você não fez esse pedido, pode ignorar este e-mail.</p>
                 <footer>
                     <p>Atenciosamente,<br>Sua equipe</p>
@@ -105,6 +107,37 @@ router.post("/password/token", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       msg: "um erro aconteceu no envio do token ao seu email, tente novamente",
+    });
+  }
+});
+
+router.patch("/password", AuthTokenPassword, async (req, res) => {
+  const id = req.userId;
+  const { password, confirmPassword } = req.body;
+
+  if (!password && password.length < 8) {
+    return res.status(400).json({ msg: "informe uma senha válida" });
+  }
+
+  if (confirmPassword !== password) {
+    return res.status(400).json({ msg: "As senhas não são iguais!" });
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(12);
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    const userModified = await UserModel.findByIdAndUpdate(
+      id,
+      { password: hashPassword },
+      { new: true }
+    ).select("-password");
+    res
+      .status(200)
+      .json({ msg: "Senha alterada com sucesso!", user: userModified });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Ocorreu um erro interno na mudança de senha",
     });
   }
 });
