@@ -108,6 +108,7 @@ router.post("/password/token", async (req, res) => {
     res.status(500).json({
       msg: "um erro aconteceu no envio do token ao seu email, tente novamente",
     });
+    console.log(error);
   }
 });
 
