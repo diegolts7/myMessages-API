@@ -111,6 +111,7 @@ router.post("/password/token", async (req, res) => {
     console.log(error);
     console.log(error.response.body);
     console.log(process.env.EMAIL_SUPPORT);
+    console.log(process.env.SENDGRID_API_KEY);
   }
 });
 
