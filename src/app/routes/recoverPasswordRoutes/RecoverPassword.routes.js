@@ -35,7 +35,7 @@ router.post("/password/token", async (req, res) => {
 
   try {
     infoEmail = await SendEmail(
-      `Support my messages <${process.env.EMAIL_SUPPORT}>`,
+      process.env.EMAIL_SUPPORT,
       email,
       "Token de redefinição de senha",
       `<!DOCTYPE html>
