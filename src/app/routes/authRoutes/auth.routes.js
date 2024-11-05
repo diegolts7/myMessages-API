@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../../../models/userModel/user.model");
+const Authenticate = require("../../../middlewares/authentication/Authentication");
 
 const router = express.Router();
 
@@ -106,6 +107,10 @@ router.post("/login", async (req, res) => {
       .status(500)
       .json({ msg: "erro interno no servidor, volte mais tarde!" });
   }
+});
+
+router.get("/check-acess", Authenticate, async (req, res) => {
+  res.status(200).json({ msg: "Voce está logado!", isLoggedIn: true });
 });
 
 module.exports = router;

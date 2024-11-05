@@ -14,7 +14,7 @@ async function Authenticate(req, res, next) {
     req.user = decoded.user;
     next();
   } catch (error) {
-    res.status(400).json({ msg: "Token inválido" });
+    res.status(400).json({ msg: "Token inválido", isLoggedIn: false });
   }
 }
 
