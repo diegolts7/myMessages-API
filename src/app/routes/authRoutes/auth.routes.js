@@ -100,7 +100,14 @@ router.post("/login", async (req, res) => {
       },
       secret
     );
-    res.status(200).json({ msg: "usuario logado com sucesso!", token });
+    const userWithoutPassword = await UserModel.findById(user.id).select(
+      "-password"
+    );
+    res.status(200).json({
+      msg: "usuario logado com sucesso!",
+      token,
+      user: userWithoutPassword,
+    });
   } catch (err) {
     console.log(err);
     res

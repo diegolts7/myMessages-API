@@ -16,4 +16,6 @@ app.use("/user", userRoutes);
 app.use("/file", imgProfileRoutes);
 app.use("/recover", recoverPasswordRoutes);
 
-module.exports = app;
+app.listen(process.env.PORT, () => console.log("server rodando"));
+
+//module.exports = app;
