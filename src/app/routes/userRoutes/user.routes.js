@@ -43,13 +43,13 @@ router.patch("/follow/:id", Authentication, async (req, res) => {
   }
 
   try {
-    const userFollowingModified = await UserModel.findByIdAndUpdate(
+    await UserModel.findByIdAndUpdate(
       id,
       {
         $addToSet: { following: followerId },
       },
       { new: true }
-    ).select("-password");
+    );
 
     const userFollowedModified = await UserModel.findByIdAndUpdate(
       followerId,
@@ -61,12 +61,47 @@ router.patch("/follow/:id", Authentication, async (req, res) => {
 
     res.status(200).json({
       msg: "Usuario seguido com sucesso!",
-      following: userFollowingModified,
       followed: userFollowedModified,
     });
   } catch (error) {
     res.status(500).json({
       msg: "Ouve um erro ao tentar seguir o usuario, tente novamente",
+    });
+  }
+});
+
+router.patch("/unfollow/:id", Authentication, async (req, res) => {
+  const unfollowId = req.params.id;
+  const { id } = req.user;
+
+  if (!unfollowId) {
+    return res.status(422).json({ msg: "id do usuario não foi informado" });
+  }
+
+  try {
+    await UserModel.findByIdAndUpdate(
+      id,
+      {
+        $pull: { following: unfollowId },
+      },
+      { new: true }
+    ).select("-password");
+
+    const userUnfollowModified = await UserModel.findByIdAndUpdate(
+      unfollowId,
+      {
+        $pull: { followers: id },
+      },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).json({
+      msg: "Usuario deixado de seguir com sucesso!",
+      unfollow: userUnfollowModified,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Ouve um erro ao tentar deixar de seguir o usuario, tente novamente",
     });
   }
 });
