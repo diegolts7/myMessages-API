@@ -3,9 +3,9 @@ const Authentication = require("../../../middlewares/authentication/Authenticati
 const MessageModel = require("../../../models/messagesModel/messages.model");
 const CheckDeleteMessage = require("../../../middlewares/checkDeleteMessage/CheckDeleteMessage");
 
-const route = express.Router();
+const router = express.Router();
 
-route.get("/:id", Authentication, async (req, res) => {
+router.get("/:id", Authentication, async (req, res) => {
   try {
     const id = req.params.id;
     const posts = await MessageModel.find({ ownerId: id }).sort({
@@ -17,7 +17,7 @@ route.get("/:id", Authentication, async (req, res) => {
   }
 });
 
-route.get("/all", Authentication, async (req, res) => {
+router.get("/all", Authentication, async (req, res) => {
   try {
     const posts = await MessageModel.find({}).sort({ createdAt: -1 });
     res.status(200).json(posts);
@@ -26,7 +26,7 @@ route.get("/all", Authentication, async (req, res) => {
   }
 });
 
-route.get("/:title", Authentication, async (req, res) => {
+router.get("/:title", Authentication, async (req, res) => {
   try {
     const title = req.params.title;
     const messagesByTitle = await MessageModel.find({
@@ -40,16 +40,20 @@ route.get("/:title", Authentication, async (req, res) => {
   }
 });
 
-route.post("/", Authentication, async (req, res) => {
+router.post("/", Authentication, async (req, res) => {
   try {
     const { title, content } = req.body;
     const { id, name } = req.user;
 
     if (!title || title === "") {
-      return res.status(422).json({ msg: "o titulo do post é obrigatório!" });
+      return res
+        .status(422)
+        .json({ msg: "o titulo da mensagem é obrigatório!" });
     }
     if (!content || content === "") {
-      return res.status(422).json({ msg: "o conteudo do post é obrigatório!" });
+      return res
+        .status(422)
+        .json({ msg: "o conteudo da mensagem é obrigatório!" });
     }
 
     const createdPost = await MessageModel.create({
@@ -61,13 +65,13 @@ route.post("/", Authentication, async (req, res) => {
 
     res
       .status(200)
-      .json({ msg: "post criado com sucesso!", post: createdPost });
+      .json({ msg: "mensagem criado com sucesso!", post: createdPost });
   } catch (error) {
     res.status(500).json({ msg: "erro ao criar mensagem!" });
   }
 });
 
-route.delete("/:id", Authentication, CheckDeleteMessage, async (req, res) => {
+router.delete("/:id", Authentication, CheckDeleteMessage, async (req, res) => {
   try {
     messageId = req.params.id;
     const deletedMessage = await MessageModel.findByIdAndDelete(messageId);
@@ -79,4 +83,21 @@ route.delete("/:id", Authentication, CheckDeleteMessage, async (req, res) => {
   }
 });
 
-module.exports = route;
+router.patch("/like/:id", Authentication, async (req, res) => {
+  try {
+    const messageId = req.params.id;
+    const { id } = req.user;
+    const modifiedMessage = await MessageModel.findByIdAndUpdate(
+      messageId,
+      { $addToSet: { likes: id } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json({ msg: "mensagem curtida com sucesso", message: modifiedMessage });
+  } catch (error) {
+    res.status(500).json({ msg: "erro ao curtir a mensagem" });
+  }
+});
+
+module.exports = router;

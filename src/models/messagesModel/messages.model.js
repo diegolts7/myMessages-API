@@ -18,6 +18,10 @@ const messageSchema = new mongoose.Schema(
       required: true,
       type: String,
     },
+    likes: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
