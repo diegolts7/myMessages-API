@@ -9,14 +9,11 @@ const router = express.Router();
 // rota register
 
 router.post("/register", async (req, res) => {
-  const { name, lastName, email, password, confirmPassword } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!name.trim()) {
     return res.status(422).json({ msg: "preencha seu nome!" });
-  }
-  if (!lastName) {
-    return res.status(422).json({ msg: "preencha seu sobrenome!" });
   }
   if (!email) {
     return res.status(422).json({ msg: "preencha seu email!" });
@@ -45,7 +42,6 @@ router.post("/register", async (req, res) => {
   try {
     await UserModel.create({
       name,
-      lastName,
       email,
       password: passwordHash,
     });
@@ -94,7 +90,7 @@ router.post("/login", async (req, res) => {
       {
         user: {
           id: user._id,
-          name: `${user.name} ${user.lastName}`,
+          name: user.name,
           role: user.role,
         },
       },
