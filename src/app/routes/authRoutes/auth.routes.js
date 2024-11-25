@@ -90,7 +90,6 @@ router.post("/login", async (req, res) => {
       {
         user: {
           id: user._id,
-          name: user.name,
           role: user.role,
         },
       },
@@ -109,7 +108,9 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/check-acess", Authenticate, async (req, res) => {
-  res.status(200).json({ msg: "Voce está logado!", isLoggedIn: true });
+  const user = req.user;
+
+  res.status(200).json({ msg: "Voce está logado!", isLoggedIn: true, user });
 });
 
 module.exports = router;
