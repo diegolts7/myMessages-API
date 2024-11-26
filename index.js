@@ -1,8 +1,8 @@
 require("dotenv").config();
 const connectToDatabase = require("./src/config/db/connect");
+const app = require("./src/app/server");
 
 connectToDatabase();
-const app = require("./src/app/server");
 
 app.get("/", (req, res) => {
   res.send("API está funcionando");
