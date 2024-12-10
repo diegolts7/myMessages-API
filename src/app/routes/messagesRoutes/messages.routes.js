@@ -17,12 +17,14 @@ router.get("/:id", Authentication, async (req, res) => {
   }
 });
 
-router.get("/all", Authentication, async (req, res) => {
+router.get("/", Authentication, async (req, res) => {
   try {
     const posts = await MessageModel.find({}).sort({ createdAt: -1 });
     res.status(200).json(posts);
   } catch (error) {
-    res.status(500).json({ msg: "erro ao consultar todos os posts!" });
+    res.status(500).json({
+      msg: "erro ao consultar todos os posts!",
+    });
   }
 });
 
