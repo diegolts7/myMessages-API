@@ -30,7 +30,7 @@ router.get("/:title", Authentication, async (req, res) => {
   try {
     const title = req.params.title;
     const messagesByTitle = await MessageModel.find({
-      title: { $regex: title, $options: "i" },
+      content: { $regex: title, $options: "i" },
     });
     res.status(200).json(messagesByTitle);
   } catch (error) {
@@ -42,14 +42,9 @@ router.get("/:title", Authentication, async (req, res) => {
 
 router.post("/", Authentication, async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { content } = req.body;
     const { id, name } = req.user;
 
-    if (!title || title === "") {
-      return res
-        .status(422)
-        .json({ msg: "o titulo da mensagem é obrigatório!" });
-    }
     if (!content || content === "") {
       return res
         .status(422)
@@ -59,7 +54,6 @@ router.post("/", Authentication, async (req, res) => {
     const createdPost = await MessageModel.create({
       ownerId: id,
       ownerName: name,
-      title,
       content,
     });
 
@@ -109,12 +103,10 @@ router.patch("/deslike/:id", Authentication, async (req, res) => {
       { $pull: { likes: id } },
       { new: true }
     );
-    res
-      .status(200)
-      .json({
-        msg: "mensagem descurtida com sucesso",
-        message: modifiedMessage,
-      });
+    res.status(200).json({
+      msg: "mensagem descurtida com sucesso",
+      message: modifiedMessage,
+    });
   } catch (error) {
     res.status(500).json({ msg: "erro ao descurtir a mensagem" });
   }
