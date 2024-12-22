@@ -79,39 +79,4 @@ router.delete("/:id", Authentication, CheckDeleteMessage, async (req, res) => {
   }
 });
 
-router.patch("/like/:id", Authentication, async (req, res) => {
-  try {
-    const messageId = req.params.id;
-    const { id } = req.user;
-    const modifiedMessage = await MessageModel.findByIdAndUpdate(
-      messageId,
-      { $addToSet: { likes: id } },
-      { new: true }
-    );
-    res
-      .status(200)
-      .json({ msg: "mensagem curtida com sucesso", message: modifiedMessage });
-  } catch (error) {
-    res.status(500).json({ msg: "erro ao curtir a mensagem" });
-  }
-});
-
-router.patch("/deslike/:id", Authentication, async (req, res) => {
-  try {
-    const messageId = req.params.id;
-    const { id } = req.user;
-    const modifiedMessage = await MessageModel.findByIdAndUpdate(
-      messageId,
-      { $pull: { likes: id } },
-      { new: true }
-    );
-    res.status(200).json({
-      msg: "mensagem descurtida com sucesso",
-      message: modifiedMessage,
-    });
-  } catch (error) {
-    res.status(500).json({ msg: "erro ao descurtir a mensagem" });
-  }
-});
-
 module.exports = router;

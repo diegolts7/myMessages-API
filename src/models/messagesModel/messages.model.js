@@ -16,7 +16,21 @@ const messageSchema = new mongoose.Schema(
       type: String,
     },
     likes: {
-      type: [String],
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+      default: [],
+    },
+    saves: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
       default: [],
     },
   },

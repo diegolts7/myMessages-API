@@ -5,6 +5,7 @@ const messageRoutes = require("./routes/messagesRoutes/messages.routes");
 const userRoutes = require("./routes/userRoutes/user.routes");
 const imgProfileRoutes = require("./routes/imgProfileRoutes/imgProfile.routes");
 const recoverPasswordRoutes = require("./routes/recoverPasswordRoutes/RecoverPassword.routes");
+const likeMessageRoutes = require("./routes/likeMessageRoutes/likeMessage.routes");
 
 const app = express();
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use("/message", messageRoutes);
 app.use("/user", userRoutes);
 app.use("/file", imgProfileRoutes);
 app.use("/recover", recoverPasswordRoutes);
+app.use("/like-message", likeMessageRoutes);
 
 app.listen(process.env.PORT, () =>
   console.log("rodando na porta " + process.env.PORT)
