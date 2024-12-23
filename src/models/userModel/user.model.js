@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema({
   profileImg: {
     nameImg: {
       type: String,
-
       default: "",
     },
     srcImg: {
@@ -29,7 +28,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 7,
+    minlength: 8,
   },
 });
 
