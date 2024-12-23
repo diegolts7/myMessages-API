@@ -5,38 +5,40 @@ const { default: mongoose } = require("mongoose");
 
 const router = express.Router();
 
-router.patch("/like/:id", Authentication, async (req, res) => {
+router.patch("/save/:id", Authentication, async (req, res) => {
   try {
     const messageId = req.params.id;
     const { id } = req.user;
     const modifiedMessage = await MessageModel.findByIdAndUpdate(
       messageId,
-      { $addToSet: { likes: id } },
+      { $addToSet: { saves: id } },
       { new: true }
     );
     res
       .status(200)
-      .json({ msg: "mensagem curtida com sucesso", message: modifiedMessage });
+      .json({ msg: "mensagem salva com sucesso", message: modifiedMessage });
   } catch (error) {
-    res.status(500).json({ msg: "erro ao curtir a mensagem" });
+    res.status(500).json({ msg: "erro ao salvar a mensagem" });
   }
 });
 
-router.patch("/deslike/:id", Authentication, async (req, res) => {
+router.patch("/discard/:id", Authentication, async (req, res) => {
   try {
     const messageId = req.params.id;
     const { id } = req.user;
     const modifiedMessage = await MessageModel.findByIdAndUpdate(
       messageId,
-      { $pull: { likes: id } },
+      { $pull: { saves: id } },
       { new: true }
     );
     res.status(200).json({
-      msg: "mensagem descurtida com sucesso",
+      msg: "mensagem descartada dos seus salvos com sucesso",
       message: modifiedMessage,
     });
   } catch (error) {
-    res.status(500).json({ msg: "erro ao descurtir a mensagem" });
+    res
+      .status(500)
+      .json({ msg: "erro ao descartar a mensagem dos seus salvos" });
   }
 });
 
@@ -52,14 +54,14 @@ router.get("/users/:messageId", Authentication, async (req, res) => {
 
       // Desestruturar os IDs no campo likes
       {
-        $unwind: "$likes",
+        $unwind: "$saves",
       },
 
       // Fazer o lookup para obter os dados dos usuários a partir dos IDs em likes
       {
         $lookup: {
           from: "users", // Nome da coleção de usuários
-          localField: "likes", // Campo em messages que contém os IDs de usuários
+          localField: "saves", // Campo em messages que contém os IDs de usuários
           foreignField: "_id", // Campo _id na coleção de usuários
           as: "user", // Nome do campo onde os dados do usuário serão inseridos
         },
@@ -87,7 +89,7 @@ router.get("/users/:messageId", Authentication, async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ msg: "Erro ao buscar os usuarios que curtiram a mensagem." });
+      .json({ msg: "Erro ao buscar os usuarios que salvaram a mensagem." });
   }
 });
 
@@ -98,7 +100,7 @@ router.get("/:userId", Authentication, async (req, res) => {
   try {
     const pipeline = [
       {
-        $match: { likes: userId }, // Substitua messageId pelo ID da mensagem
+        $match: { saves: userId }, // Substitua messageId pelo ID da mensagem
       },
 
       {
@@ -117,10 +119,10 @@ router.get("/:userId", Authentication, async (req, res) => {
       {
         $addFields: {
           // Verifica se o ID do usuário está presente no array de likes
-          isLiked: true,
+          isLiked: { $in: [id, "$likes"] },
 
           // Verifica se o ID do usuário está presente no array de saves
-          isSaved: { $in: [id, "$saves"] },
+          isSaved: true,
 
           // Conta o número de likes
           likesCount: { $size: "$likes" },
@@ -155,7 +157,7 @@ router.get("/:userId", Authentication, async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ msg: "Erro ao buscar as mensagens curtidas deste usuario." });
+      .json({ msg: "Erro ao buscar as mensagens salvas deste usuario." });
   }
 });
 
