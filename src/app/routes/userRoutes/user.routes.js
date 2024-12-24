@@ -6,6 +6,7 @@ const VerifyAdmin = require("../../../middlewares/verifyAdmin/VerifyAdmin");
 const Authentication = require("../../../middlewares/authentication/Authentication");
 const FollowModel = require("../../../models/followModel/followModel");
 const { default: mongoose } = require("mongoose");
+const PipelineUser = require("../../../services/pipelines/PipelineUser");
 
 // rota de pegar um usuario
 
@@ -98,40 +99,15 @@ router.patch("/unfollow/:id", Authentication, async (req, res) => {
 
 router.get("/following/:userId", Authentication, async (req, res) => {
   const userId = req.params.userId;
-  const userIdObjectId = new mongoose.Types.ObjectId(userId);
 
   try {
-    const pipeline = [
-      {
-        $match: { followingId: userIdObjectId },
-      },
-
-      {
-        $lookup: {
-          from: "users",
-          localField: `followedId`,
-          foreignField: "_id",
-          as: "followedUser",
-        },
-      },
-
-      {
-        $unwind: "$followedUser",
-      },
-
-      {
-        $project: {
-          _id: 1,
-          followingId: 1,
-          "followedUser._id": 1,
-          "followedUser.name": 1,
-          "followedUser.profileImg": 1,
-          "followedUser.role": 1,
-        },
-      },
-    ];
-
-    const result = await FollowModel.aggregate(pipeline).exec();
+    const result = await FollowModel.aggregate(
+      PipelineUser(
+        { followingId: new mongoose.Types.ObjectId(userId) },
+        userId,
+        "followedId"
+      )
+    ).exec();
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({
@@ -147,37 +123,13 @@ router.get("/followed/:userId", Authentication, async (req, res) => {
   const userIdObjectId = new mongoose.Types.ObjectId(userId);
 
   try {
-    const pipeline = [
-      {
-        $match: { followedId: userIdObjectId },
-      },
-
-      {
-        $lookup: {
-          from: "users",
-          localField: `followingId`,
-          foreignField: "_id",
-          as: "followingUser",
-        },
-      },
-
-      {
-        $unwind: "$followingUser",
-      },
-
-      {
-        $project: {
-          _id: 1,
-          followedId: 1,
-          "followingUser._id": 1,
-          "followingUser.name": 1,
-          "followingUser.profileImg": 1,
-          "followingUser.role": 1,
-        },
-      },
-    ];
-
-    const result = await FollowModel.aggregate(pipeline).exec();
+    const result = await FollowModel.aggregate(
+      PipelineUser(
+        { followedId: new mongoose.Types.ObjectId(userId) },
+        userId,
+        "followingId"
+      )
+    ).exec();
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({

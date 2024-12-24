@@ -2,7 +2,7 @@ const express = require("express");
 const Authentication = require("../../../middlewares/authentication/Authentication");
 const MessageModel = require("../../../models/messagesModel/messages.model");
 const CheckDeleteMessage = require("../../../middlewares/checkDeleteMessage/CheckDeleteMessage");
-const PipelineMessageUser = require("../../../services/pipelineMessageUser/PipelineMessageUser");
+const PipelineMessageUser = require("../../../services/pipelines/PipelineMessageUser");
 const { default: mongoose } = require("mongoose");
 const FollowModel = require("../../../models/followModel/followModel");
 

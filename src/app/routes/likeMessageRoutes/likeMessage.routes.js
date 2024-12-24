@@ -2,7 +2,7 @@ const express = require("express");
 const Authentication = require("../../../middlewares/authentication/Authentication");
 const MessageModel = require("../../../models/messagesModel/messages.model");
 const { default: mongoose } = require("mongoose");
-const PipelineMessageUser = require("../../../services/pipelineMessageUser/PipelineMessageUser");
+const PipelineMessageUser = require("../../../services/pipelines/PipelineMessageUser");
 
 const router = express.Router();
 
