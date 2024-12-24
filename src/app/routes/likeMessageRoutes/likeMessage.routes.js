@@ -3,6 +3,7 @@ const Authentication = require("../../../middlewares/authentication/Authenticati
 const MessageModel = require("../../../models/messagesModel/messages.model");
 const { default: mongoose } = require("mongoose");
 const PipelineMessageUser = require("../../../services/pipelines/PipelineMessageUser");
+const PipelineUsersInfoMessage = require("../../../services/pipelines/PipelineUsersInfoMessage");
 
 const router = express.Router();
 
@@ -45,40 +46,9 @@ router.get("/users/:messageId", Authentication, async (req, res) => {
   const messageId = req.params.messageId;
 
   try {
-    const pipeline = [
-      {
-        $match: { _id: new mongoose.Types.ObjectId(messageId) },
-      },
-
-      {
-        $unwind: "$likes",
-      },
-
-      {
-        $lookup: {
-          from: "users",
-          localField: "likes",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-
-      {
-        $unwind: "$user",
-      },
-
-      {
-        $project: {
-          _id: 0,
-          "user._id": 1,
-          "user.name": 1,
-          "user.profileImg": 1,
-          "user.role": 1,
-        },
-      },
-    ];
-
-    const result = await MessageModel.aggregate(pipeline).exec();
+    const result = await MessageModel.aggregate(
+      PipelineUsersInfoMessage(messageId, "likes")
+    ).exec();
     res.status(200).json(result);
   } catch (error) {
     res

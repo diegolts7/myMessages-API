@@ -120,7 +120,6 @@ router.get("/following/:userId", Authentication, async (req, res) => {
 
 router.get("/followed/:userId", Authentication, async (req, res) => {
   const userId = req.params.userId;
-  const userIdObjectId = new mongoose.Types.ObjectId(userId);
 
   try {
     const result = await FollowModel.aggregate(

@@ -3,6 +3,7 @@ const Authentication = require("../../../middlewares/authentication/Authenticati
 const MessageModel = require("../../../models/messagesModel/messages.model");
 const { default: mongoose } = require("mongoose");
 const PipelineMessageUser = require("../../../services/pipelines/PipelineMessageUser");
+const PipelineUsersInfoMessage = require("../../../services/pipelines/PipelineUsersInfoMessage");
 
 const router = express.Router();
 
@@ -47,45 +48,9 @@ router.get("/users/:messageId", Authentication, async (req, res) => {
   const messageId = req.params.messageId;
 
   try {
-    const pipeline = [
-      // Filtrar pela mensagem desejada (opcional, se você quiser focar em uma mensagem específica)
-      {
-        $match: { _id: new mongoose.Types.ObjectId(messageId) }, // Substitua messageId pelo ID da mensagem
-      },
-
-      // Desestruturar os IDs no campo likes
-      {
-        $unwind: "$saves",
-      },
-
-      // Fazer o lookup para obter os dados dos usuários a partir dos IDs em likes
-      {
-        $lookup: {
-          from: "users", // Nome da coleção de usuários
-          localField: "saves", // Campo em messages que contém os IDs de usuários
-          foreignField: "_id", // Campo _id na coleção de usuários
-          as: "user", // Nome do campo onde os dados do usuário serão inseridos
-        },
-      },
-
-      // Desestruturar o array "user" (cada like corresponde a um único usuário)
-      {
-        $unwind: "$user",
-      },
-
-      // Projetar apenas os campos necessários
-      {
-        $project: {
-          _id: 0, // Exclui o ID da mensagem
-          "user._id": 1, // ID do usuário
-          "user.name": 1, // Nome do usuário
-          "user.profileImg": 1,
-          "user.role": 1, // Imagem de perfil do usuário
-        },
-      },
-    ];
-
-    const result = await MessageModel.aggregate(pipeline).exec();
+    const result = await MessageModel.aggregate(
+      PipelineUsersInfoMessage(messageId, "saves")
+    ).exec();
     res.status(200).json(result);
   } catch (error) {
     res
