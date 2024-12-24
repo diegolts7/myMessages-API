@@ -117,7 +117,6 @@ router.get("/following", Authentication, async (req, res) => {
           _id: 0,
           followingId: 1,
           "message._id": 1,
-          "message.name": 1,
           "message.content": 1,
           "message.createdAt": 1,
           isLiked: 1,
@@ -126,6 +125,7 @@ router.get("/following", Authentication, async (req, res) => {
           savesCount: 1,
           "owner._id": 1,
           "owner.name": 1,
+          "owner.handle": 1,
           "owner.role": 1,
           "owner.profileImg": 1,
         },
@@ -144,7 +144,7 @@ router.get("/following", Authentication, async (req, res) => {
 router.post("/", Authentication, async (req, res) => {
   try {
     const { content } = req.body;
-    const { id, name } = req.user;
+    const { id } = req.user;
 
     if (!content || content === "") {
       return res
@@ -154,7 +154,6 @@ router.post("/", Authentication, async (req, res) => {
 
     const createdPost = await MessageModel.create({
       ownerId: id,
-      ownerName: name,
       content,
     });
 

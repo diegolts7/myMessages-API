@@ -7,10 +7,6 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    ownerName: {
-      required: true,
-      type: String,
-    },
     content: {
       required: true,
       type: String,

@@ -50,6 +50,7 @@ const PipelineMessageUser = (filtro, sort, userId) => {
         savesCount: 1,
         owner: {
           _id: 1, // ID do usuário que curtiu
+          handle: 1,
           name: 1, // Nome do usuário
           profileImg: 1, // Imagem de perfil do usuário
           role: 1, // Papel do usuário

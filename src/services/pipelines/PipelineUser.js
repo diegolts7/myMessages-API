@@ -21,11 +21,17 @@ const PipelineUser = (filtro, idUser, localfield) => {
     },
 
     {
+      $sort: { "user.createdAt": -1 },
+    },
+
+    {
       $project: {
         _id: 0,
         followingId: 1,
         followedId: 1,
         "user.name": 1,
+        "user.handle": 1,
+        "user.description": 1,
         "user.profileImg": 1,
         "user.role": 1,
       },
