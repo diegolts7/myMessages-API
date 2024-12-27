@@ -20,8 +20,4 @@ app.use("/recover", recoverPasswordRoutes);
 app.use("/like-message", likeMessageRoutes);
 app.use("/save-message", saveMessageRoutes);
 
-app.listen(process.env.PORT, () =>
-  console.log("rodando na porta " + process.env.PORT)
-);
-
-// module.exports = app;
+module.exports = app;
