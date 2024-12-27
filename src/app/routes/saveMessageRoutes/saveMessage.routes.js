@@ -46,10 +46,11 @@ router.patch("/discard/:id", Authentication, async (req, res) => {
 
 router.get("/users/:messageId", Authentication, async (req, res) => {
   const messageId = req.params.messageId;
+  const idUserAuth = req.user.id;
 
   try {
     const result = await MessageModel.aggregate(
-      PipelineUsersInfoMessage(messageId, "saves")
+      PipelineUsersInfoMessage(messageId, "saves", idUserAuth)
     ).exec();
     res.status(200).json(result);
   } catch (error) {

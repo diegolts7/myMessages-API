@@ -44,10 +44,11 @@ router.patch("/deslike/:id", Authentication, async (req, res) => {
 
 router.get("/users/:messageId", Authentication, async (req, res) => {
   const messageId = req.params.messageId;
+  const idUserAuth = req.user.id;
 
   try {
     const result = await MessageModel.aggregate(
-      PipelineUsersInfoMessage(messageId, "likes")
+      PipelineUsersInfoMessage(messageId, "likes", idUserAuth)
     ).exec();
     res.status(200).json(result);
   } catch (error) {

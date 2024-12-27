@@ -101,12 +101,13 @@ router.patch("/unfollow/:id", Authentication, async (req, res) => {
 
 router.get("/following/:userId", Authentication, async (req, res) => {
   const userId = req.params.userId;
+  const idUserAuth = req.user.id;
 
   try {
     const result = await FollowModel.aggregate(
       PipelineUser(
         { followingId: new mongoose.Types.ObjectId(userId) },
-        userId,
+        idUserAuth,
         "followedId"
       )
     ).exec();
@@ -122,12 +123,13 @@ router.get("/following/:userId", Authentication, async (req, res) => {
 
 router.get("/followed/:userId", Authentication, async (req, res) => {
   const userId = req.params.userId;
+  const idUserAuth = req.user.id;
 
   try {
     const result = await FollowModel.aggregate(
       PipelineUser(
         { followedId: new mongoose.Types.ObjectId(userId) },
-        userId,
+        idUserAuth,
         "followingId"
       )
     ).exec();
