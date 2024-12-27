@@ -7,6 +7,8 @@ const Authentication = require("../../../middlewares/authentication/Authenticati
 const FollowModel = require("../../../models/followModel/followModel");
 const { default: mongoose } = require("mongoose");
 const PipelineUser = require("../../../services/pipelines/PipelineUser");
+const UsersByName = require("../../../services/pipelines/UsersByName");
+const { z } = require("zod");
 
 // rota de pegar um usuario
 
@@ -134,6 +136,28 @@ router.get("/followed/:userId", Authentication, async (req, res) => {
     res.status(500).json({
       msg: "Ouve um erro ao tentar buscar os usuarios que seguem este usuario, tente novamente",
     });
+  }
+});
+
+router.get("/search/:name", Authentication, async (req, res) => {
+  const userAuthId = req.user.id;
+  const name = req.params.name;
+
+  const querySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).default(10),
+  });
+
+  const { page, limit } = querySchema.parse(req.query);
+
+  try {
+    const posts = await UserModel.aggregate(
+      UsersByName(name, page, limit, userAuthId)
+    ).exec();
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ msg: "Erro ao pesquisar por uma mensagem" });
   }
 });
 

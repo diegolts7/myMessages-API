@@ -13,10 +13,12 @@ const router = express.Router();
 // rota register
 
 router.post("/register", async (req, res) => {
+  const data = req.body;
+  data.dateBirth = new Date(data.dateBirth);
+
   try {
-    const { name, email, handle, dateBirth, password } = registerSchema.parse(
-      req.body
-    );
+    const { name, email, handle, dateBirth, password } =
+      registerSchema.parse(data);
 
     const [{ emailExists, handleExists }] = await UserModel.aggregate(
       CheckEmailHandle(email, handle)
