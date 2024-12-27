@@ -8,6 +8,10 @@ const PipelineUser = (filtro, idUser, localfield) => {
     },
 
     {
+      $sort: { createdAt: -1 },
+    },
+
+    {
       $lookup: {
         from: "users",
         localField: localfield,
@@ -18,10 +22,6 @@ const PipelineUser = (filtro, idUser, localfield) => {
 
     {
       $unwind: "$user",
-    },
-
-    {
-      $sort: { "user.createdAt": -1 },
     },
 
     {

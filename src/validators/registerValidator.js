@@ -2,9 +2,12 @@ const { z } = require("zod");
 
 const registerSchema = z
   .object({
-    name: z.string({
-      required_error: "O campo 'name' é obrigatório",
-    }),
+    name: z
+      .string({
+        required_error: "O campo 'name' é obrigatório",
+      })
+      .min(3, "o nome é muito curto")
+      .max(50, "o nome é muito grande"),
 
     role: z.enum(["admin", "user"]).default("user"),
 

@@ -6,23 +6,30 @@ const Authenticate = require("../../../middlewares/authentication/Authentication
 const { z } = require("zod");
 const registerSchema = require("../../../validators/registerValidator");
 const loginSchema = require("../../../validators/loginValidator");
+const CheckEmailHandle = require("../../../services/pipelines/CheckEmailHandle");
 
 const router = express.Router();
 
 // rota register
 
 router.post("/register", async (req, res) => {
-  const data = req.body;
-  data.dateBirth = new Date(data.dateBirth);
-
   try {
-    const { name, email, handle, dateBirth, password } =
-      registerSchema.parse(data);
+    const { name, email, handle, dateBirth, password } = registerSchema.parse(
+      req.body
+    );
 
-    const user = await UserModel.findOne({ email: email });
+    const [{ emailExists, handleExists }] = await UserModel.aggregate(
+      CheckEmailHandle(email, handle)
+    ).exec();
 
-    if (user) {
+    if (emailExists) {
       return res.status(422).json({ msg: "usuario com esse email já existe" });
+    }
+
+    if (handleExists) {
+      return res
+        .status(422)
+        .json({ msg: "usuario com esse identificador de usuário já existe" });
     }
 
     const salt = await bcrypt.genSalt(12);
@@ -38,11 +45,11 @@ router.post("/register", async (req, res) => {
     res.status(201).json({ msg: "usuario cadastrado com sucesso" });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(422).json({ errors: err.errors });
+      return res.status(422).json({ msg: err.errors[0].message });
     }
     res
       .status(500)
-      .json({ msg: "erro interno no servidor, volte mais tarde!" });
+      .json({ msg: "erro interno no servidor, volte mais tarde!", err });
   }
 });
 
@@ -79,7 +86,7 @@ router.post("/login", async (req, res) => {
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(422).json({ errors: err.errors });
+      return res.status(422).json({ msg: err.errors[0].message });
     }
     res
       .status(500)
