@@ -5,10 +5,14 @@ const CheckDeleteMessage = require("../../../middlewares/checkDeleteMessage/Chec
 const PipelineMessageUser = require("../../../services/pipelines/PipelineMessageUser");
 const { default: mongoose } = require("mongoose");
 const FollowModel = require("../../../models/followModel/followModel");
+const { usersMessagesSchema } = require("../../../validators/queryValidator");
+const FollowingMessages = require("../../../services/pipelines/FollowingMessages");
 
 const router = express.Router();
 
 router.get("/user/:id", Authentication, async (req, res) => {
+  const { page, limit } = usersMessagesSchema.parse(req.query);
+
   try {
     const id = req.params.id;
     const userAuthId = req.user.id;
@@ -17,7 +21,9 @@ router.get("/user/:id", Authentication, async (req, res) => {
       PipelineMessageUser(
         { ownerId: new mongoose.Types.ObjectId(id) },
         -1,
-        userAuthId
+        userAuthId,
+        page,
+        limit
       )
     ).exec();
     res.status(200).json(posts);
@@ -29,9 +35,11 @@ router.get("/user/:id", Authentication, async (req, res) => {
 router.get("/", Authentication, async (req, res) => {
   const userAuthId = req.user.id;
 
+  const { page, limit } = usersMessagesSchema.parse(req.query);
+
   try {
     const posts = await MessageModel.aggregate(
-      PipelineMessageUser({}, -1, userAuthId)
+      PipelineMessageUser({}, -1, userAuthId, page, limit)
     ).exec();
     res.status(200).json(posts);
   } catch (error) {
@@ -45,12 +53,16 @@ router.get("/search/:keyWord", Authentication, async (req, res) => {
   const userAuthId = req.user.id;
   const keyWord = req.params.keyWord;
 
+  const { page, limit } = usersMessagesSchema.parse(req.query);
+
   try {
     const posts = await MessageModel.aggregate(
       PipelineMessageUser(
         { content: { $regex: keyWord, $options: "i" } },
         -1,
-        userAuthId
+        userAuthId,
+        page,
+        limit
       )
     ).exec();
 
@@ -62,77 +74,13 @@ router.get("/search/:keyWord", Authentication, async (req, res) => {
 
 router.get("/following", Authentication, async (req, res) => {
   const { id } = req.user;
-  const userIdAuth = new mongoose.Types.ObjectId(id);
+
+  const { page, limit } = usersMessagesSchema.parse(req.query);
 
   try {
-    const pipeline = [
-      {
-        $match: { followingId: userIdAuth },
-      },
-
-      {
-        $lookup: {
-          from: "users",
-          localField: `followedId`,
-          foreignField: "_id",
-          as: "owner",
-        },
-      },
-
-      {
-        $unwind: "$owner",
-      },
-
-      {
-        $lookup: {
-          from: "messages",
-          localField: `owner._id`,
-          foreignField: "ownerId",
-          as: "message",
-        },
-      },
-
-      {
-        $unwind: "$message",
-      },
-
-      {
-        $sort: { "message.createdAt": -1 },
-      },
-
-      {
-        $addFields: {
-          isLiked: { $in: [userIdAuth, "$message.likes"] },
-
-          isSaved: { $in: [userIdAuth, "$message.saves"] },
-
-          likesCount: { $size: "$message.likes" },
-
-          savesCount: { $size: "$message.saves" },
-        },
-      },
-
-      {
-        $project: {
-          _id: 0,
-          followingId: 1,
-          "message._id": 1,
-          "message.content": 1,
-          "message.createdAt": 1,
-          isLiked: 1,
-          isSaved: 1,
-          likesCount: 1,
-          savesCount: 1,
-          "owner._id": 1,
-          "owner.name": 1,
-          "owner.handle": 1,
-          "owner.role": 1,
-          "owner.profileImg": 1,
-        },
-      },
-    ];
-
-    const result = await FollowModel.aggregate(pipeline).exec();
+    const result = await FollowModel.aggregate(
+      FollowingMessages(id, page, limit)
+    ).exec();
     res.status(200).json(result);
   } catch (error) {
     res

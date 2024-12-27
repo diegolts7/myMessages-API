@@ -9,6 +9,7 @@ const { default: mongoose } = require("mongoose");
 const PipelineUser = require("../../../services/pipelines/PipelineUser");
 const UsersByName = require("../../../services/pipelines/UsersByName");
 const { z } = require("zod");
+const { usersMessagesSchema } = require("../../../validators/queryValidator");
 
 // rota de pegar um usuario
 
@@ -145,12 +146,7 @@ router.get("/search/:name", Authentication, async (req, res) => {
   const userAuthId = req.user.id;
   const name = req.params.name;
 
-  const querySchema = z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).default(10),
-  });
-
-  const { page, limit } = querySchema.parse(req.query);
+  const { page, limit } = usersMessagesSchema.parse(req.query);
 
   try {
     const posts = await UserModel.aggregate(

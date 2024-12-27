@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
         default: "",
       },
     },
-    descripion: {
+    description: {
       type: String,
       default: "",
       maxlength: 150,

@@ -51,7 +51,7 @@ const PipelineUsersInfoMessage = (messageId, localfield, idUserAuth) => {
 
     {
       $project: {
-        _id: "user._id",
+        _id: "$user._id",
         name: "$user.name",
         handle: "$user.handle",
         description: "$user.description",

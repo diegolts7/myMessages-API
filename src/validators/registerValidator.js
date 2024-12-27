@@ -18,7 +18,7 @@ const registerSchema = z
       })
       .default({ nameImg: "", srcImg: "" }),
 
-    descripion: z
+    description: z
       .string()
       .max(150, "A descrição pode ter no máximo 150 caracteres")
       .default(""),

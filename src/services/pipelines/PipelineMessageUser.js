@@ -1,7 +1,9 @@
 const { default: mongoose } = require("mongoose");
 
-const PipelineMessageUser = (filtro, sort, userId) => {
+const PipelineMessageUser = (filtro, sort, userId, page, limit) => {
   const id = new mongoose.Types.ObjectId(userId);
+  const skip = (page - 1) * limit;
+
   return [
     {
       $match: filtro, // Substitua messageId pelo ID da mensagem
@@ -10,6 +12,9 @@ const PipelineMessageUser = (filtro, sort, userId) => {
     {
       $sort: { createdAt: sort },
     },
+
+    { $skip: skip },
+    { $limit: limit },
 
     {
       $lookup: {
