@@ -85,18 +85,20 @@ router.patch("/password", AuthTokenPassword, async (req, res) => {
   try {
     const { password } = PasswordCheckSchema.parse(req.body);
 
+    const userWithOldPassword = await UserModel.findById(id);
+
+    if (userWithOldPassword.password === password) {
+      return res
+        .status(422)
+        .json({ msg: "A nova senha nâo pode ser igual a antiga." });
+    }
+
     const salt = await bcrypt.genSalt(12);
     const hashPassword = await bcrypt.hash(password, salt);
 
-    const userModified = await UserModel.findByIdAndUpdate(
-      id,
-      { password: hashPassword },
-      { new: true }
-    ).select("-password");
+    await UserModel.findByIdAndUpdate(id, { password: hashPassword });
 
-    res
-      .status(200)
-      .json({ msg: "Senha alterada com sucesso!", user: userModified });
+    res.status(200).json({ msg: "Senha alterada com sucesso!" });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(422).json({ msg: error.errors[0].message });
