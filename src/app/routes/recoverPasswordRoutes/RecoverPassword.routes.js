@@ -87,7 +87,12 @@ router.patch("/password", AuthTokenPassword, async (req, res) => {
 
     const userWithOldPassword = await UserModel.findById(id);
 
-    if (userWithOldPassword.password === password) {
+    const compareHashPassword = await bcrypt.compare(
+      password,
+      userWithOldPassword.password
+    );
+
+    if (compareHashPassword) {
       return res
         .status(422)
         .json({ msg: "A nova senha nâo pode ser igual a antiga." });
